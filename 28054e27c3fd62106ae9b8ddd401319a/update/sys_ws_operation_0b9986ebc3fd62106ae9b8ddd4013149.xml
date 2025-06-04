@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl>cf9d01d3e73003009d6247e603f6a990</enforce_acl>
+        <http_method>POST</http_method>
+        <name>Desk Scan</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+
+	// This REST API processes swipe card (badge) data that was collected by a Floorsight device
+	// The Card Serial Number (CSN) and location data (floorid + workspace name) are available
+	// If the API processes the card data successfully it should return a successful response
+	// If the card data could not be processed - e.g. unknown card, card swiped at wrong desk, etc
+	// then the API should return a failure along with an optional message to display on the Floorsight screen
+
+	// Note: Customer to provide customise implementation of this API to support the required workflow
+
+	var result = {
+		"result": false,
+		"message": "Invalid Request"
+	};
+
+	try {
+		var requestString = request.body.dataString;
+		var obj = JSON.parse(requestString);
+
+		var csn = obj.csn || '';
+		var key = obj.key || '';
+
+		if (csn.length > 0) {
+			if (key.length > 0) {
+
+				// TODO: Perform a query to look up this space
+				result.message = "OK";
+				result.result = true;
+
+			} else {
+				result.message = "key required";
+			}
+		} else {
+			result.message = "csn required";
+		}
+	} catch (ex) {
+		// Log this error?
+	}
+
+	response.setBody(result);
+
+
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1763556_fs/floorsense/desk-scan</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/desk-scan</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-06-04 03:40:29</sys_created_on>
+        <sys_id>0b9986ebc3fd62106ae9b8ddd4013149</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Desk Scan</sys_name>
+        <sys_package display_value="Floorsense" source="x_1763556_fs">28054e27c3fd62106ae9b8ddd401319a</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Floorsense">28054e27c3fd62106ae9b8ddd401319a</sys_scope>
+        <sys_update_name>sys_ws_operation_0b9986ebc3fd62106ae9b8ddd4013149</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-06-04 03:40:29</sys_updated_on>
+        <web_service_definition display_value="Floorsense">ca98ce6bc3fd62106ae9b8ddd4013178</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>

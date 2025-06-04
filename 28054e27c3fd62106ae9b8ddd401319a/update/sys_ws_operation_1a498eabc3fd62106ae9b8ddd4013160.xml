@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl>cf9d01d3e73003009d6247e603f6a990</enforce_acl>
+        <http_method>GET</http_method>
+        <name>Get Floors</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+
+	// This endpoint fetchs a list of floors that contain reservable objects
+	// Floorsense uses the results from this API to provideer a user interface to select which
+	// which reservations should be sync-ed to the Floorsense shadow reservation database
+	// The sys_id of the sn_wsd_core_floor (returned as floorid below) is passed to the
+	// GET /reservations REST API to do this filtering
+
+	// Create a GlideRecord object to query the sn_wsd_core_floor table
+	// Restrict to "Active" floors that are "Reservable"
+	// Note: Customers may which to place additional filters to the query here
+	var gr = new GlideRecord('sn_wsd_core_floor');
+	gr.addActiveQuery();
+	gr.addQuery('is_reservable', 'True');
+
+	// Run the query
+	gr.query();
+
+	var floors = [];
+
+	// For each SN record produce a record for FS
+	while (gr.next()) {
+		var floor = {};
+		floor.floorid = gr.getUniqueValue();
+		floor.name = gr.getValue('name');
+		floor.building = gr.getDisplayValue('building');
+		floor.campus = gr.getDisplayValue('campus');
+		floor.site = gr.getDisplayValue('site');
+		floor.region = gr.getDisplayValue('region');
+		floors.push(floor);
+	}
+
+	// Return the JSON formatted data in the REST API response
+	response.setBody(floors);
+
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1763556_fs/floorsense/floors</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/floors</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-06-04 03:39:07</sys_created_on>
+        <sys_id>1a498eabc3fd62106ae9b8ddd4013160</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Get Floors</sys_name>
+        <sys_package display_value="Floorsense" source="x_1763556_fs">28054e27c3fd62106ae9b8ddd401319a</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Floorsense">28054e27c3fd62106ae9b8ddd401319a</sys_scope>
+        <sys_update_name>sys_ws_operation_1a498eabc3fd62106ae9b8ddd4013160</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-06-04 03:39:07</sys_updated_on>
+        <web_service_definition display_value="Floorsense">ca98ce6bc3fd62106ae9b8ddd4013178</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>

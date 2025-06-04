@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl>cf9d01d3e73003009d6247e603f6a990</enforce_acl>
+        <http_method>GET</http_method>
+        <name>Get Reservations</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+
+	// This API returns "Active" reservations in the "near future" to be cached into 
+	// the Floorsense reservation database and displayed on Floorsight Handset Displays
+	// Workplace reservations are stored in the sn_wsd_rsv_reservation table
+
+	// The "near future" is defined by the window period. The window period is from the
+	// current time up until 24 hours in the future. This is configurable by passing a different
+	// window parameter to this API (in minutes from now)
+
+	// Reservations can also be further restricted by SN floor by passing the "floorid" parameter
+	// This helps cut down the number of records that may be returned
+
+	// Note: A customer may wish to further filter records to e.g. only those spaces that have physical
+	// Floorsight Display units - how this is determined is customer-specific (e.g. an additional flag 
+	// could be store on the sn_wsd_core_space table)
+
+	// Set the "window" period 
+	var minutes = 24 * 60;
+	var now = new GlideDateTime();
+	var window = new GlideDateTime();
+	window.add(minutes * 60 * 1000);
+
+	// Determine the Floor filter (if any)
+	var floorid = request.queryParams.floorid || '';
+
+	var reservations = [];
+	var gr = new GlideRecord('sn_wsd_rsv_reservation');
+	gr.addActiveQuery();
+	// Select all reservations that will be active in the window period
+	gr.addQuery('end', '>=', now);
+	gr.addQuery('start', '<=', window);
+	if (floorid.length > 0) {
+		gr.addQuery('floor', floorid);
+	}
+
+	gr.query();
+
+	while (gr.next()) {
+		var res = {};
+		// Unique reservation ID
+		// Note: could use gr.getUniqueValue() here but this is more readable for debugging
+		res.resid = gr.getValue('number');
+		// Include the reservation number
+		res.number = gr.getValue('number');
+		// Include the start/finish time of this reservation
+		var start = new GlideDateTime(gr.getValue('start'));
+		res.start = start.getNumericValue() / 1000;
+		var finish = new GlideDateTime(gr.getValue('end'));
+		res.finish = finish.getNumericValue() / 1000;
+		// Include location details - we include the sys_id of the place as well as the display name
+		// Depending on mapping details on Fllorsense we can match places on either
+		res.locid = gr.getValue('workplace_location');
+		res.locname = gr.getDisplayValue('workplace_location');
+		res.floorid = gr.getValue('floor');
+		// Add in the status
+		res.state = gr.getValue('state'); // confirmed / in_progress / cancelled
+		res.checkin = gr.getValue('check_in_state'); // awaiting_check_in / checked_in
+		// And finally include the user's details to be cached
+		res.userid = gr.getValue('requested_for');
+		res.username = gr.getDisplayValue('requested_for');
+
+		// Add to the list
+		reservations.push(res);
+	}
+
+	response.setBody(reservations);
+
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1763556_fs/floorsense/reservations</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/reservations</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-06-04 03:39:41</sys_created_on>
+        <sys_id>6a7942abc3fd62106ae9b8ddd40131c8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Get Reservations</sys_name>
+        <sys_package display_value="Floorsense" source="x_1763556_fs">28054e27c3fd62106ae9b8ddd401319a</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Floorsense">28054e27c3fd62106ae9b8ddd401319a</sys_scope>
+        <sys_update_name>sys_ws_operation_6a7942abc3fd62106ae9b8ddd40131c8</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-06-04 03:39:41</sys_updated_on>
+        <web_service_definition display_value="Floorsense">ca98ce6bc3fd62106ae9b8ddd4013178</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>

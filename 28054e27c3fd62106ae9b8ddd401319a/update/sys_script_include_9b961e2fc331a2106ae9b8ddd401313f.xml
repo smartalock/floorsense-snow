@@ -14,32 +14,73 @@ FloorsenseUtils.prototype = {
     initialize: function() {
     },
 
-	formatReservation(obj) {
+	/*
+	 * Create a JSON object from a GlideRecord to send to the Floorsense platform
+	 */
+	formatReservation(gr) {
 		var res = {};
-		// TODO:
+		// Unique reservation ID
+		// Note: could use gr.getUniqueValue() here but this is more readable for debugging
+		res.resid = gr.getValue('number');
+		// Include the reservation number
+		res.number = gr.getValue('number');
+		// Include the start/finish time of this reservation
+		var start = new GlideDateTime(gr.getValue('start'));
+		res.start = start.getNumericValue() / 1000;
+		var finish = new GlideDateTime(gr.getValue('end'));
+		res.finish = finish.getNumericValue() / 1000;
+		// Include location details - we include the sys_id of the place as well as the display name
+		// Depending on mapping details on Fllorsense we can match places on either
+		res.locid = gr.getValue('workplace_location');
+		res.locname = gr.getDisplayValue('workplace_location');
+		res.floorid = gr.getValue('floor');
+		// Add in the status
+		res.state = gr.getValue('state'); // confirmed / in_progress / cancelled
+		res.checkin = gr.getValue('check_in_state'); // awaiting_check_in / checked_in
+		// And finally include the user's details to be cached
+		res.userid = gr.getValue('requested_for');
+		res.username = gr.getDisplayValue('requested_for');
+
 		return res;
 	},
 
-	sendReservationToFloorsense: function(reservation_id) {
+	/*
+	 * Create a JSON object from a GlideRecord to send to the Floorsense platform
+	 */
+	formatFloor(gr) {
+		var floor = {};
+		floor.floorid = gr.getUniqueValue();
+		floor.name = gr.getValue('name');
+		floor.building = gr.getDisplayValue('building');
+		floor.campus = gr.getDisplayValue('campus');
+		floor.site = gr.getDisplayValue('site');
+		floor.region = gr.getDisplayValue('region');
+		return floor;
+	},
+
+	sendReservationToFloorsense: function(resid) {
         try {
             //get the reservation record
             var rsv = new GlideRecord('sn_wsd_rsv_reservation');
-            rsv.get(reservation_id);
+            rsv.get(resid);
 
-			var res = formatReservation(rsv);
+			var res = this.formatReservation(rsv);
+			var endpoint = gs.getProperty('x_1763556_fs.api_endpoint') + "/reservation";
+
+			gs.info("Sending resid " +  resid + " to floorsense endpoint " + endpoint);
 
             //get the latest auth token
-            var token = gs.getProperty('x_1763556_fs.auth_token');
+            var token = gs.getProperty('x_1763556_fs.api_token');
             //prepare the message for the update request
             var r = new sn_ws.RESTMessageV2();
-            r.setEndpoint(gs.getProperty('x_1763556_fs.api_endpoint'));
-            r.setRequestBody(JSON.stringify(obj));
+            r.setEndpoint(endpoint);
+            r.setRequestBody(JSON.stringify(res));
             r.setHttpMethod('post');
             r.setRequestHeader('Content-Type', 'application/json');
             r.setRequestHeader('Authorization', "Bearer: " + token);
             r.execute();
         } catch (err) {
-            gs.info('sendReservationToFloorsense: ' + err.message);
+            gs.info('sendReservationToFloorsense Error: ' + err.message);
         }
     },
 
@@ -49,13 +90,13 @@ FloorsenseUtils.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-06-04 04:41:51</sys_created_on>
         <sys_id>9b961e2fc331a2106ae9b8ddd401313f</sys_id>
-        <sys_mod_count>0</sys_mod_count>
+        <sys_mod_count>8</sys_mod_count>
         <sys_name>FloorsenseUtils</sys_name>
         <sys_package display_value="Floorsense" source="x_1763556_fs">28054e27c3fd62106ae9b8ddd401319a</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="Floorsense">28054e27c3fd62106ae9b8ddd401319a</sys_scope>
         <sys_update_name>sys_script_include_9b961e2fc331a2106ae9b8ddd401313f</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-06-04 04:41:51</sys_updated_on>
+        <sys_updated_on>2025-06-05 02:31:27</sys_updated_on>
     </sys_script_include>
 </record_update>

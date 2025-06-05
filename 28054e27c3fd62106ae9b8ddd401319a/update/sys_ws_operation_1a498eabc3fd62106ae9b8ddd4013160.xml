@@ -27,17 +27,15 @@
 
 	var floors = [];
 
+	var fs = new FloorsenseUtils();
+
 	// For each SN record produce a record for FS
 	while (gr.next()) {
-		var floor = {};
-		floor.floorid = gr.getUniqueValue();
-		floor.name = gr.getValue('name');
-		floor.building = gr.getDisplayValue('building');
-		floor.campus = gr.getDisplayValue('campus');
-		floor.site = gr.getDisplayValue('site');
-		floor.region = gr.getDisplayValue('region');
+		var floor = fs.formatFloor(gr);
 		floors.push(floor);
 	}
+
+	gs.debug("Returned " + floors.length + " floors");
 
 	// Return the JSON formatted data in the REST API response
 	response.setBody(floors);
@@ -56,14 +54,14 @@
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-06-04 03:39:07</sys_created_on>
         <sys_id>1a498eabc3fd62106ae9b8ddd4013160</sys_id>
-        <sys_mod_count>0</sys_mod_count>
+        <sys_mod_count>2</sys_mod_count>
         <sys_name>Get Floors</sys_name>
         <sys_package display_value="Floorsense" source="x_1763556_fs">28054e27c3fd62106ae9b8ddd401319a</sys_package>
         <sys_policy/>
         <sys_scope display_value="Floorsense">28054e27c3fd62106ae9b8ddd401319a</sys_scope>
         <sys_update_name>sys_ws_operation_1a498eabc3fd62106ae9b8ddd4013160</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-06-04 03:39:07</sys_updated_on>
+        <sys_updated_on>2025-06-04 22:06:31</sys_updated_on>
         <web_service_definition display_value="Floorsense">ca98ce6bc3fd62106ae9b8ddd4013178</web_service_definition>
         <web_service_version/>
     </sys_ws_operation>

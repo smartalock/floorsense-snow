@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sysevent_script_action">
+    <sysevent_script_action action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <condition_script/>
+        <description/>
+        <event_name>x_1763556_fs.reservation_changed</event_name>
+        <name>Send Reservation to Floorsense</name>
+        <order>100</order>
+        <script><![CDATA[gs.info("Sending updated reservation details to Floorsense");
+var fs = new FloorsenseUtils();
+fs.sendReservationToFloorsense(event.parm1);]]></script>
+        <synchronous>false</synchronous>
+        <sys_class_name>sysevent_script_action</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-06-05 01:37:33</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>06f6f2b7c3f5e2106ae9b8ddd4013122</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Send Reservation to Floorsense</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="Floorsense" source="x_1763556_fs">28054e27c3fd62106ae9b8ddd401319a</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Floorsense">28054e27c3fd62106ae9b8ddd401319a</sys_scope>
+        <sys_update_name>sysevent_script_action_06f6f2b7c3f5e2106ae9b8ddd4013122</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-06-05 02:28:40</sys_updated_on>
+    </sysevent_script_action>
+</record_update>
